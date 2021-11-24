@@ -33,7 +33,7 @@ class EmployeeController extends Controller
         if($validated['failed']){
             return response()->json(array("error"=>$validated['message']), 400);
         }
-        
+
         //create the employee
         $employee = Employee::create([
             'uniqueId'=>"",
@@ -96,7 +96,36 @@ class EmployeeController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //Validate
+        $employeeModel = new Employee();
+        $validated = $employeeModel->validate($request);
+        if($validated['failed']){
+            return response()->json(array("error"=>$validated['message']), 400);
+        }
+
+        //Find the record and update it
+        $employee = Employee::find($id);
+        $employee->update($request->all());
+
+        //Update the skills
+        if($request->has('skills')){
+            //Delete all current skills assigned to employee
+            $employee->skills()->delete();
+
+            //Update the employee with new skills
+            foreach($request->input('skills') as $new_skill){
+                $skill = new EmployeeSkills();
+                $skill->skill = $new_skill['skill'];
+                $skill->yearsExperience = array_key_exists('yearsExperience', $new_skill)?$new_skill['yearsExperience']:"0";
+                $skill->seniorityRating = array_key_exists('seniorityRating', $new_skill)?$new_skill['seniorityRating']:"";
+                $employee->skills()->save($skill);
+            }
+        }
+
+        //get the updated record icluding the skills
+        $employee->load('skills');
+
+        return $employee;
     }
 
     /**

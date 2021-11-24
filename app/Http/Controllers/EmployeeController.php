@@ -27,7 +27,35 @@ class EmployeeController extends Controller
      */
     public function create(Request $request)
     {
-        //
+        //create the employee
+        $employee = Employee::create([
+            'uniqueId'=>"",
+            'firstName'=>$request->input('firstName'),
+            'lastName'=>$request->input('lastName'),
+            'emailAddress'=>$request->input('emailAddress'),
+            'telephone'=>$request->input('telephone'),
+            'dateOfBirth'=>$request->input('dateOfBirth'),
+            'streetAddress'=>$request->input('streetAddress'),
+            'city'=>$request->input('city'),
+            'postalCode'=>$request->input('postalCode'),
+            'country'=>$request->input('country'),
+        ]);
+        
+        //Add the skills
+        if(count($request->input('skills'))){
+            foreach($request->input('skills') as $new_skill){
+                $skill = new EmployeeSkills();
+                $skill->skill = $new_skill['skill'];
+                $skill->yearsExperience = array_key_exists('yearsExperience', $new_skill)?$new_skill['yearsExperience']:"0";
+                $skill->seniorityRating = array_key_exists('seniorityRating', $new_skill)?$new_skill['seniorityRating']:"";
+                $employee->skills()->save($skill);
+            }
+        }
+
+        //get the new record icluding the skills
+        $employee->load('skills');
+
+        return response()->json($employee, 201);
     }
 
     /**

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Validator;
 
 class Employee extends Model
 {
@@ -51,6 +52,49 @@ class Employee extends Model
     public function skills()
     {
         return $this->hasMany(EmployeeSkills::class)->orderBy('skill', 'asc');;
+    }
+
+
+    //Validate the data being posted or updated
+    public function validate($request) {
+
+        //Validate employee general info
+        $validator = Validator::make($request->all(), [
+            'firstName'=>'required',
+            'lastName'=>'required',
+            'telephone'=>'required',
+            'emailAddress'=>'sometimes|email',
+            'dateOfBirth'=>'sometimes|date',
+        ]);
+
+        if ($validator->fails()) {
+            $messages = $validator->messages()->all();
+            return array(
+                "failed"=>true,
+                "message"=>$messages[0]
+            );
+        }
+
+        //Validate the skills
+        $allowedseniorityRatings = array("Entry-level","Mid-level","Senior-level");
+        if($request->input('skills')){
+            foreach($request->input('skills') as $new_skill){
+                $validator = Validator::make($new_skill, [
+                    'skill'=>'required',
+                    'yearsExperience'=>'required|integer',
+                    'seniorityRating'=>'required|in:' . implode(',', $allowedseniorityRatings),
+                ]);
+
+                if ($validator->fails()) {
+                    $messages = $validator->messages()->all();
+                    return array(
+                        "failed"=>true,
+                        "message"=>"On skills: ".$messages[0]
+                    );
+                }
+            }
+        }
+        
     }
 
 }

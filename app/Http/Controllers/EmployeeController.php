@@ -27,6 +27,13 @@ class EmployeeController extends Controller
      */
     public function create(Request $request)
     {
+        //Validate
+        $employeeModel = new Employee();
+        $validated = $employeeModel->validate($request);
+        if($validated['failed']){
+            return response()->json(array("error"=>$validated['message']), 400);
+        }
+        
         //create the employee
         $employee = Employee::create([
             'uniqueId'=>"",

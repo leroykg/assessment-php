@@ -90,12 +90,13 @@ class EmployeeController extends Controller
     /**
      * Display a specified employee.
      *
-     * @param  int  $id
+     * @param  Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        //
+    public function show(Employee $employee)
+    {   
+        $employee->load('skills');
+        return $employee;
     }
 
     /**

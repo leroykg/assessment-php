@@ -13,9 +13,31 @@ class EmployeeController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $searchKeyword=$request->input('search');
+        $yearOfBirth=$request->input('yearOfBirth');
+        $skill=$request->input('skill');
+
+        $results = Employee::query()->with('skills')->orderBy('firstName', 'asc');
+
+        if (!empty($searchKeyword)){
+            $results = $results->where('firstName', 'like', '%'.$searchKeyword.'%')
+            ->orWhere('lastName', 'LIKE', '%'.$searchKeyword.'%')
+            ->orWhere('emailAddress', 'LIKE', '%'.$searchKeyword.'%');
+        }
+
+        if (!empty($skill)){
+            $results = $results->whereHas('skills', function ($query) use ($skill) {
+                $query->where('skill', 'like', '%'.$skill.'%');
+            });
+        }
+
+        if (!empty($yearOfBirth)){
+            $results->whereYear('dateOfBirth', $yearOfBirth);
+        }
+
+        return  $results->paginate(100);
     }
 
 

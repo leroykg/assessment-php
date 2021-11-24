@@ -154,11 +154,11 @@ class EmployeeController extends Controller
     /**
      * Remove the specified employee.
      *
-     * @param  int  $id
+     * @param  Employee $employee
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Employee $employee)
     {
-        //
+        return  $employee->delete();
     }
 }

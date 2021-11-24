@@ -26,6 +26,27 @@ class Employee extends Model
         'uniqueId',
     ];
 
+    protected static function booted()
+    {
+        static::creating(function ($employee) {
+
+            $length = 2;
+
+            //Characters
+            $characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $charactersLength = strlen($characters);
+            $charactersString = '';
+            for ($i = 0; $i < $length; $i++) {
+                $charactersString .= $characters[rand(0, $charactersLength - 1)];
+            }
+    
+            //Numbers
+            $number_string = rand(1000,9999);
+
+            $employee->uniqueId = $charactersString.$number_string;
+        });
+    }
+
     // Skill connection
     public function skills()
     {
